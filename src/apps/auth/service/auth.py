@@ -20,7 +20,7 @@ oauth2_scheme = OAuth2PasswordBearer(
 )
 
 
-def __build_credential_exception(scope: str) -> Exception:
+def credential_exception(scope: str) -> Exception:
     msg = f"Bearer token required for {scope}" if scope else "Bearer token required"
     return UserCredentialException({
         "www-authenticate": msg
