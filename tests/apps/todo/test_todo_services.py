@@ -16,6 +16,7 @@ class TestTodoServices(unittest.TestCase):
     def setUpClass(cls):
         """This runs once before the entire test suite"""
         cls.n = 10
+
         pass
 
     @classmethod
@@ -25,7 +26,8 @@ class TestTodoServices(unittest.TestCase):
 
     def setUp(self):
         """This runs before each test"""
-        self.db = {}
+        self.db = mock.MagicMock()
+        self.db.add.return_value = None
         pass
 
     def tearDown(self):
@@ -50,7 +52,10 @@ class TestTodoServices(unittest.TestCase):
         todo_create_request = TodoCreateRequestFactory()
 
         # test create_todo
-        new_todo = create_todo(self.db, todo_create_request)
+        new_todo = create_todo(
+            db=self.db,
+            todo=todo_create_request,
+        )
 
         # assert
         self.assertEqual(new_todo.title, todo_create_request.title)
@@ -61,38 +66,64 @@ class TestTodoServices(unittest.TestCase):
         """Test get TodoItem"""
         # create fake TodoItem
         todo = TodoItemFactory()
-        self.db[todo.id] = todo
+
+        new_todo = create_todo(
+            db=self.db,
+            todo=todo,
+        )
+
+        self.db.query.return_value.filter_by.return_value.first.return_value = new_todo
 
         # test get_todo
-        todo = get_todo(self.db, todo.id)
+        todo = get_todo(
+            db=self.db,
+            todo_id=todo.id
+        )
 
         # assert
         self.assertIsNotNone(todo)
-        self.assertEqual(todo.id, todo.id)
-        self.assertEqual(todo.title, todo.title)
-        self.assertEqual(todo.content, todo.content)
-        self.assertEqual(todo.is_done, todo.is_done)
-        self.assertEqual(todo.created_at, todo.created_at)
-        self.assertEqual(todo.updated_at, todo.updated_at)
+        self.assertEqual(todo.title, new_todo.title)
+        self.assertEqual(todo.content, new_todo.content)
+        self.assertEqual(todo.is_done, new_todo.is_done)
 
     def test_get_all(self):
         """Test get all TodoItems"""
         # create fake TodoItem
-        for _ in range(self.n):
+        n = 10
+
+        tmp = []
+
+        for _ in range(n):
+            # create fake TodoItem
             todo = TodoItemFactory()
-            self.db[todo.id] = todo
+            # test create_todo
+            todo = create_todo(
+                db=self.db,
+                todo=todo,
+            )
+            tmp.append(todo)
+
+        self.db.query.return_value.all.return_value = tmp
 
         # test get_all
-        todos = get_all()
+        todos = get_all(
+            db=self.db
+        )
 
         # assert
-        self.assertEqual(len(todos), self.n)
+        self.assertEqual(len(todos), n)
 
     def test_update_todo(self):
         """Test update TodoItem"""
+        self.db.query.return_value.filter_by.return_value.update.return_value = 1
+
         # create fake TodoItem
         todo = TodoItemFactory()
-        self.db[todo.id] = todo
+        # test create_todo
+        todo = create_todo(
+            db=self.db,
+            todo=todo,
+        )
 
         # create fake TodoUpdateRequest
         todo_update_request = TodoUpdateRequestFactory()
@@ -102,20 +133,34 @@ class TestTodoServices(unittest.TestCase):
         # assert updated_at is not equal to previous updated_at
         with mock.patch('time.sleep', return_value=1):
             # test update_todo
-            updated_todo = update_todo(self.db, todo.id, todo, todo_update_request)
-            self.assertEqual(updated_todo.title, todo_update_request.title)
-            self.assertEqual(updated_todo.content, todo_update_request.content)
-            self.assertEqual(updated_todo.is_done, todo_update_request.is_done)
-            self.assertEqual(updated_todo.created_at, todo.created_at)
+            result = update_todo(
+                db=self.db,
+                todo_id=todo.id,
+                todo_update_request=todo_update_request,
+            )
+            self.assertEqual(result, 1)
 
     def test_delete_todo(self):
         """Test delete TodoItem"""
         # create fake TodoItem
         todo = TodoItemFactory()
-        self.db[todo.id] = todo
+
+        # test create_todo
+        todo = create_todo(
+            db=self.db,
+            todo=todo,
+        )
 
         # test delete_todo
-        delete_todo(self.db, todo.id)
+        delete_todo(
+            db=self.db,
+            todo_id=todo.id
+        )
+
+        # get all
+        todos = get_all(
+            db=self.db
+        )
 
         # assert
-        self.assertEqual(len(self.db), 0)
+        self.assertEqual(len(todos), 0)

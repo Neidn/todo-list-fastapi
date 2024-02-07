@@ -1,6 +1,6 @@
 import factory
 from factory.fuzzy import FuzzyChoice
-from src.apps.todo.models.domain.todos import TodoItemBase
+from src.apps.todo.models.domain.todos import TodoItem
 from src.apps.todo.models.schema.todos import TodoCreateRequest, TodoUpdateRequest
 
 
@@ -10,7 +10,7 @@ class TodoItemFactory(factory.Factory):
     class Meta:
         """Maps factory to data model"""
 
-        model = TodoItemBase
+        model = TodoItem
 
     id = factory.Faker("uuid4")
     title = factory.Faker("sentence")

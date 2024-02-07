@@ -1,9 +1,11 @@
 from typing import Optional
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel
 
 from sqlalchemy import Column, String, Boolean, Integer, ForeignKey, DateTime
 
-from src.core.database import Base
+from .....core.database import Base
+
+TABLE_NAME = "todos"
 
 
 class TodoItem(BaseModel):
@@ -19,18 +21,55 @@ class TodoItem(BaseModel):
         from_attributes = True
 
 
+class TodoItemOwner(TodoItem):
+    """ TodoItem with owner schema """
+    owner_user_id: str
+
+    class Config:
+        from_attributes = True
+
+
 class TodoItemDB(Base):
     """ TodoItem database schema """
-    __tablename__ = "todos"
+    __tablename__ = TABLE_NAME
 
-    id = Column(String, primary_key=True, index=True)
-    title = Column(String, index=True)
-    content = Column(String, index=True)
-    is_done = Column(Boolean, index=True)
+    id = Column(
+        String,
+        primary_key=True,
+        index=True,
+        default="",
+        server_default="",
+        comment="TodoItem uuid",
+    )
+    title = Column(
+        String,
+        index=True,
+        default="",
+        server_default="",
+        comment="TodoItem title",
+    )
+    content = Column(
+        String,
+        index=True,
+        default="",
+        server_default="",
+        comment="TodoItem content",
+    )
+    is_done = Column(
+        Boolean,
+        index=True,
+        default=False,
+        server_default="",
+        comment="TodoItem is done or not(True: done, False: not done)",
+    )
     created_at = Column(String, index=True)  # format: %Y-%m-%d %H:%M:%S
     updated_at = Column(String, index=True)  # format: %Y-%m-%d %H:%M:%S
 
+
+class TodoItemOwnerDB(TodoItemDB):
+    """ TodoItem with owner database schema """
+    __tablename__ = TABLE_NAME
+
     # owner_user_id = Column(String, ForeignKey("users.id"))
 
-    class Config:
-        orm_mode = True
+    # owner_user_id = Column(String, ForeignKey("users.id"))

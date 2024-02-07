@@ -30,9 +30,7 @@ async def get_todos(
     """
     Get all TodoItems
     """
-    todos = await services.get_all(db=db)
-    for todo in todos:
-        print(todo.title)
+    todos = services.get_all(db=db)
     return todos
 
 
@@ -58,7 +56,7 @@ async def create_todo(
     """
     Create a TodoItem
     """
-    new_todo = await services.create_todo(
+    new_todo = services.create_todo(
         db=db,
         todo=todo,
     )
@@ -70,36 +68,40 @@ async def create_todo(
 async def update_todo(
         todo_update: TodoUpdateRequest,
         todo_id: str = __valid_id,
+        db: Session = Depends(services.get_database_session),
 ) -> TodoItem:
     """
     Update a TodoItem
     """
     todo = services.get_todo(
-        db=todos_repo,
+        db=db,
         todo_id=todo_id,
     )
 
     if todo is None:
         raise TodoNotFoundException
 
-    todo = services.update_todo(
-        db=todos_repo,
+    result = services.update_todo(
+        db=db,
         todo_id=todo_id,
-        previous_todo=todo,
         todo_update_request=todo_update,
     )
+    if not result:
+        raise TodoNotFoundException
+
     return todo
 
 
 @todos_router.delete("/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_todo(
         todo_id: str = __valid_id,
+        db: Session = Depends(services.get_database_session),
 ) -> None:
     """
     Delete a TodoItem
     """
     todo = services.get_todo(
-        db=todos_repo,
+        db=db,
         todo_id=todo_id,
     )
 
@@ -107,7 +109,7 @@ async def delete_todo(
         raise TodoNotFoundException
 
     services.delete_todo(
-        db=todos_repo,
+        db=db,
         todo_id=todo_id,
     )
     return None
