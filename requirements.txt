@@ -1,0 +1,16 @@
+# Testing dependencies
+pynose
+pinocchio
+factory-boy
+
+# Code Coverage
+coverage
+
+# For the API
+fastapi
+pydantic
+pydantic[dotenv]
+pydantic-settings
+uvicorn
+sqlalchemy
+starlette
