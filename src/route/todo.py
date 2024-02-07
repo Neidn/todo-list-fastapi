@@ -14,7 +14,13 @@ from src.apps.todo.repo.fake import todos_repo
 
 todos_router = APIRouter()
 
-__valid_id = Path(..., title="The ID of the todo", description="The ID of the todo", ge=1)
+# UUid
+__valid_id = Path(
+    ...,
+    title="Todo ID",
+    description="The ID of the TodoItem",
+    regex="^[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}$",
+)
 
 
 @todos_router.get("/", response_model=List[TodoItem], status_code=status.HTTP_200_OK)
