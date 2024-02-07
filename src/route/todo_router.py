@@ -3,7 +3,6 @@ from starlette import status
 from fastapi.routing import APIRouter
 from fastapi.param_functions import Depends, Path, Query
 
-from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from src.apps.todo.exceptions import TodoNotFoundException
@@ -12,8 +11,6 @@ from src.apps.todo import services
 
 from src.apps.todo.models.domain.todos import TodoItem
 from src.apps.todo.models.schema.todos import TodoCreateRequest, TodoUpdateRequest
-
-from src.apps.todo.repo.fake import todos_repo
 
 todos_router = APIRouter()
 
@@ -34,17 +31,20 @@ async def get_todos(
     Get all TodoItems
     """
     todos = await services.get_all(db=db)
+    for todo in todos:
+        print(todo.title)
     return todos
 
 
 @todos_router.get("/{todo_id}", response_model=TodoItem, status_code=status.HTTP_200_OK)
 async def get_todo(
         todo_id: str = __valid_id,
+        db: Session = Depends(services.get_database_session),
 ) -> TodoItem:
     """
     Get a TodoItem
     """
-    todo = services.get_todo(db=todos_repo, todo_id=todo_id)
+    todo = services.get_todo(db=db, todo_id=todo_id)
     if todo is None:
         raise TodoNotFoundException
     return todo

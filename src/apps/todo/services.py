@@ -3,7 +3,7 @@ from typing import Any, List, Optional
 from datetime import datetime
 
 from sqlalchemy.orm import Session
-from fastapi.param_functions import Depends, Security
+from sqlalchemy import LambdaElement
 
 from .models.domain.todos import TodoItem, TodoItemDB
 from .models.schema.todos import TodoCreateRequest, TodoUpdateRequest
@@ -11,27 +11,19 @@ from .models.schema.todos import TodoCreateRequest, TodoUpdateRequest
 from src.core.database import get_database_session
 
 
-def get_todo(db: Any, todo_id: str) -> Optional[TodoItem]:
-    todo: Optional[TodoItem] = db.get(todo_id, None)
-    return todo
+def get_todo(
+        db: Session,
+        todo_id: str
+) -> TodoItem:
+    query_filter = LambdaElement(TodoItemDB.id == todo_id)
+    todo = db.query(TodoItemDB).filter(query_filter).first()
+    return TodoItem.from_orm(todo)
 
 
 async def get_all(db: Session) -> List[TodoItem]:
     todos = db.query(TodoItemDB).all()
 
-    new_todos = []
-
-    for todo in todos:
-        new_todo = TodoItem(
-            id=todo.id,
-            title=todo.title,
-            content=todo.content,
-            is_done=todo.is_done,
-            created_at=todo.created_at,
-            updated_at=todo.updated_at,
-        )
-        new_todos.append(new_todo)
-
+    new_todos = [TodoItem.from_orm(todo) for todo in todos]
     return new_todos
 
 
@@ -58,10 +50,7 @@ async def create_todo(
     db.commit()
     db.refresh(new_todo)
 
-    # db[new_todo_id] = new_todo
-    print(new_todo.title)
-
-    return new_todo
+    return TodoItem.from_orm(new_todo)
 
 
 def get_new_todo_id() -> str:

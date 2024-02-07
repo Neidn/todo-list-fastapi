@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 
 from sqlalchemy import Column, String, Boolean, Integer, ForeignKey, DateTime
 
@@ -12,8 +12,11 @@ class TodoItem(BaseModel):
     title: str
     content: Optional[str]
     is_done: bool
-    created_at: str  # format: %Y-%m-%d %H:%M:%S
-    updated_at: str  # format: %Y-%m-%d %H:%M:%S
+    created_at: str
+    updated_at: str
+
+    class Config:
+        from_attributes = True
 
 
 class TodoItemDB(Base):
@@ -24,6 +27,10 @@ class TodoItemDB(Base):
     title = Column(String, index=True)
     content = Column(String, index=True)
     is_done = Column(Boolean, index=True)
-    created_at = Column(String, index=True)
-    updated_at = Column(String, index=True)
+    created_at = Column(String, index=True)  # format: %Y-%m-%d %H:%M:%S
+    updated_at = Column(String, index=True)  # format: %Y-%m-%d %H:%M:%S
+
     # owner_user_id = Column(String, ForeignKey("users.id"))
+
+    class Config:
+        orm_mode = True
