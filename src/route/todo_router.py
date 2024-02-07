@@ -1,16 +1,16 @@
-from typing import List, Any, Coroutine
+from typing import List
 from starlette import status
 from fastapi.routing import APIRouter
-from fastapi.param_functions import Depends, Path, Query
+from fastapi.param_functions import Depends, Path
 
 from sqlalchemy.orm import Session
 
-from src.apps.todo.exceptions import TodoNotFoundException
+from ..apps.todo.exceptions import TodoNotFoundException
+from ..core.database import get_database_session
+from ..apps.todo.service import todo
 
-from src.apps.todo import services
-
-from src.apps.todo.models.domain.todos import TodoItem
-from src.apps.todo.models.schema.todos import TodoCreateRequest, TodoUpdateRequest
+from ..apps.todo.models.domain.todos import TodoItem
+from ..apps.todo.models.schema.todos import TodoCreateRequest, TodoUpdateRequest
 
 todos_router = APIRouter()
 
@@ -25,7 +25,7 @@ __valid_id = Path(
 
 @todos_router.get("/", response_model=List[TodoItem], status_code=status.HTTP_200_OK)
 async def get_todos(
-        db: Session = Depends(services.get_database_session),
+        db: Session = Depends(get_database_session),
 ) -> List[TodoItem]:
     """
     Get all TodoItems
@@ -37,7 +37,7 @@ async def get_todos(
 @todos_router.get("/{todo_id}", response_model=TodoItem, status_code=status.HTTP_200_OK)
 async def get_todo(
         todo_id: str = __valid_id,
-        db: Session = Depends(services.get_database_session),
+        db: Session = Depends(get_database_session),
 ) -> TodoItem:
     """
     Get a TodoItem
@@ -51,7 +51,7 @@ async def get_todo(
 @todos_router.post("/", response_model=TodoItem, status_code=status.HTTP_201_CREATED)
 async def create_todo(
         todo: TodoCreateRequest,
-        db: Session = Depends(services.get_database_session),
+        db: Session = Depends(get_database_session),
 ) -> TodoItem:
     """
     Create a TodoItem
@@ -68,7 +68,7 @@ async def create_todo(
 async def update_todo(
         todo_update: TodoUpdateRequest,
         todo_id: str = __valid_id,
-        db: Session = Depends(services.get_database_session),
+        db: Session = Depends(get_database_session),
 ) -> TodoItem:
     """
     Update a TodoItem
@@ -95,7 +95,7 @@ async def update_todo(
 @todos_router.delete("/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_todo(
         todo_id: str = __valid_id,
-        db: Session = Depends(services.get_database_session),
+        db: Session = Depends(get_database_session),
 ) -> None:
     """
     Delete a TodoItem

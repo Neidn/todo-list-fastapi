@@ -9,10 +9,13 @@ coverage
 # For the API
 fastapi
 pydantic
-pydantic[dotenv]
 pydantic-settings
 uvicorn
+
 sqlalchemy
 starlette
 uuid
-alembic
+passlib
+
+# For token
+PyJWT

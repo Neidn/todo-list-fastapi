@@ -5,7 +5,7 @@
 import unittest
 from unittest import mock
 
-from src.apps.todo.services import *
+from src.apps.todo.service.todo import *
 from .todo_factories import TodoItemFactory, TodoCreateRequestFactory, TodoUpdateRequestFactory
 
 

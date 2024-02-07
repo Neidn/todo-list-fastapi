@@ -5,10 +5,8 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from sqlalchemy import LambdaElement, select
 
-from .models.domain.todos import TodoItem, TodoItemDB
-from .models.schema.todos import TodoCreateRequest, TodoUpdateRequest
-
-from src.core.database import get_database_session
+from src.apps.todo.models.domain.todos import TodoItem, TodoItemDB
+from src.apps.todo.models.schema.todos import TodoCreateRequest, TodoUpdateRequest
 
 
 def get_todo(

@@ -11,15 +11,11 @@ class User(BaseModel):
     """ User Info """
 
     username: str
-    email: Optional[str] = ""
-    full_name: Optional[str] = ""
-    disabled: Optional[bool] = False
-
-    class Config:
-        from_attribute = True
-
-
-class UserCore(User):
+    email: str
+    full_name: str
+    disabled: bool = False
+    created_at: str
+    updated_at: str
     hashed_password: str
     permission: UserPermission = UserPermission.NORMAL
 
@@ -82,3 +78,17 @@ class UserDB(Base):
         server_default="",
         comment="User permission(GUEST: 0, NORMAL: 1, ADMIN: 2)",
     )
+    created_at = Column(
+        String,
+        index=True,
+        default="",
+        server_default="",
+        comment="User created at"
+    )  # format: %Y-%m-%d %H:%M:%S
+    updated_at = Column(
+        String,
+        index=True,
+        default="",
+        server_default="",
+        comment="User updated at"
+    )  # format: %Y-%m-%d %H:%M:%S

@@ -12,7 +12,7 @@ class TodoItem(BaseModel):
     """ TodoItem schema """
     id: str
     title: str
-    content: Optional[str]
+    content: str
     is_done: bool
     created_at: str
     updated_at: str
