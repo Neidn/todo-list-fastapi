@@ -14,3 +14,4 @@ pydantic-settings
 uvicorn
 sqlalchemy
 starlette
+uuid

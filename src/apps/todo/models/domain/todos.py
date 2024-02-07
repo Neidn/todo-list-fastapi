@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 
 class TodoItem(BaseModel):
-    """ Todoitem schema """
+    """ TodoItem schema """
     id: str
     title: str
     content: Optional[str]
