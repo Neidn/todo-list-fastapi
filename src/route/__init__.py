@@ -3,8 +3,8 @@ routes
 """
 from fastapi.routing import APIRouter
 
-from .health import health_router
-from .todo import todos_router
+from .health_router import health_router
+from .todo_router import todos_router
 
 # from ..apps.auth.routes.tokens import token as token_router
 # from ..apps.auth.routes.users import user as user_router

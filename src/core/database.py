@@ -25,12 +25,11 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 
-def get_database_session() -> Generator[Session, None, None]:
+def get_database_session():
     """ sqlalchemy Session generator """
-    session = None
+    session = SessionLocal()
 
     try:
-        session = SessionLocal()
         yield session
     finally:
         session.close()

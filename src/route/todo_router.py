@@ -1,7 +1,10 @@
-from typing import List
+from typing import List, Any, Coroutine
 from starlette import status
 from fastapi.routing import APIRouter
 from fastapi.param_functions import Depends, Path, Query
+
+from sqlalchemy import text
+from sqlalchemy.orm import Session
 
 from src.apps.todo.exceptions import TodoNotFoundException
 
@@ -24,11 +27,13 @@ __valid_id = Path(
 
 
 @todos_router.get("/", response_model=List[TodoItem], status_code=status.HTTP_200_OK)
-async def get_todos() -> List[TodoItem]:
+async def get_todos(
+        db: Session = Depends(services.get_database_session),
+) -> List[TodoItem]:
     """
     Get all TodoItems
     """
-    todos = services.get_all(db=todos_repo)
+    todos = await services.get_all(db=db)
     return todos
 
 
@@ -48,11 +53,17 @@ async def get_todo(
 @todos_router.post("/", response_model=TodoItem, status_code=status.HTTP_201_CREATED)
 async def create_todo(
         todo: TodoCreateRequest,
+        db: Session = Depends(services.get_database_session),
 ) -> TodoItem:
     """
     Create a TodoItem
     """
-    return services.create_todo(db=todos_repo, todo=todo)
+    new_todo = await services.create_todo(
+        db=db,
+        todo=todo,
+    )
+
+    return new_todo
 
 
 @todos_router.put("/{todo_id}", response_model=TodoItem, status_code=status.HTTP_200_OK)

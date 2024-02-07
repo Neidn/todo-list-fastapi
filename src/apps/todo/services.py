@@ -2,8 +2,13 @@ import uuid
 from typing import Any, List, Optional
 from datetime import datetime
 
-from .models.domain.todos import TodoItem
+from sqlalchemy.orm import Session
+from fastapi.param_functions import Depends, Security
+
+from .models.domain.todos import TodoItem, TodoItemDB
 from .models.schema.todos import TodoCreateRequest, TodoUpdateRequest
+
+from src.core.database import get_database_session
 
 
 def get_todo(db: Any, todo_id: str) -> Optional[TodoItem]:
@@ -11,22 +16,51 @@ def get_todo(db: Any, todo_id: str) -> Optional[TodoItem]:
     return todo
 
 
-def get_all(db: Any) -> List[TodoItem]:
-    todos = [TodoItem(**todo.dict()) for todo in db.values()]
-    return todos
+async def get_all(db: Session) -> List[TodoItem]:
+    todos = db.query(TodoItemDB).all()
+
+    new_todos = []
+
+    for todo in todos:
+        new_todo = TodoItem(
+            id=todo.id,
+            title=todo.title,
+            content=todo.content,
+            is_done=todo.is_done,
+            created_at=todo.created_at,
+            updated_at=todo.updated_at,
+        )
+        new_todos.append(new_todo)
+
+    return new_todos
 
 
-def create_todo(db: Any, todo: TodoCreateRequest) -> TodoItem:
-    next_todo_id = get_new_todo_id()
+async def create_todo(
+        db: Session,
+        todo: TodoCreateRequest,
+) -> TodoItem:
+    new_todo_id = get_new_todo_id()
+    # Should map to the database schema
     new_todo = TodoItem(
-        id=next_todo_id,
+        id=new_todo_id,
+        owner_user_id='',
         title=todo.title,
         content=todo.content,
         is_done=todo.is_done,
         created_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         updated_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     )
-    db[next_todo_id] = new_todo
+
+    # convert TodoItem to TodoItemDB
+    new_todo = TodoItemDB(**new_todo.dict())
+
+    db.add(new_todo)
+    db.commit()
+    db.refresh(new_todo)
+
+    # db[new_todo_id] = new_todo
+    print(new_todo.title)
+
     return new_todo
 
 
