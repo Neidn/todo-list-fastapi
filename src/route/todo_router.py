@@ -1,16 +1,19 @@
 from typing import List
 from starlette import status
 from fastapi.routing import APIRouter
-from fastapi.param_functions import Depends, Path
+from fastapi.param_functions import Depends, Path, Security
 
 from sqlalchemy.orm import Session
 
+from ..apps.todo.service import todo as services
 from ..apps.todo.exceptions import TodoNotFoundException
-from ..core.database import get_database_session
-from ..apps.todo.service import todo
-
 from ..apps.todo.models.domain.todos import TodoItem
 from ..apps.todo.models.schema.todos import TodoCreateRequest, TodoUpdateRequest
+
+from ..core.database import get_database_session
+
+from ..apps.auth.service.user import get_current_active_user
+from ..apps.auth.model.domain.user import User
 
 todos_router = APIRouter()
 
@@ -21,6 +24,12 @@ __valid_id = Path(
     description="The ID of the TodoItem",
     regex="^[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}$",
 )
+
+__current_active_user = Depends(get_current_active_user)
+__creatable_user = Security(get_current_active_user, scopes=["TODOS/POST"])
+__readable_user = Security(get_current_active_user, scopes=["TODOS/GET"])
+__updatable_user = Security(get_current_active_user, scopes=["TODOS/PATCH"])
+__deletable_user = Security(get_current_active_user, scopes=["TODOS/DELETE"])
 
 
 @todos_router.get("/", response_model=List[TodoItem], status_code=status.HTTP_200_OK)
@@ -48,9 +57,14 @@ async def get_todo(
     return todo
 
 
-@todos_router.post("/", response_model=TodoItem, status_code=status.HTTP_201_CREATED)
+@todos_router.post(
+    "/",
+    response_model=TodoItem,
+    status_code=status.HTTP_201_CREATED,
+)
 async def create_todo(
         todo: TodoCreateRequest,
+        current_user: User = __creatable_user,
         db: Session = Depends(get_database_session),
 ) -> TodoItem:
     """

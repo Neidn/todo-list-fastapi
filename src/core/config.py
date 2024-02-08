@@ -33,11 +33,13 @@ class Settings(BaseSettings):
     """
 
     API_VERSION_PREFIX: str = "/api/v1"
-    PRIVATE_KEY: str = ""
-    PUBLIC_KEY: str = ""
+    PRIVATE_KEY_PATH: str = "private_key.pem"
+    PUBLIC_KEY_PATH: str = "public_key.pem"
+    PRIVATE_KEY: str = ''
+    PUBLIC_KEY: str = ''
     JWT_ALGORITHM: str = "RS256"
 
-    ACCESS_TOKEN_EXPIRE_SECONDS: int = 86400 * 7
+    ACCESS_TOKEN_EXPIRE_SECONDS: int = 3600
     USER_REPOSITORY_PATH: str = ""
 
     CORS_ALLOWS: List[HttpUrl] = []

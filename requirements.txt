@@ -16,6 +16,9 @@ sqlalchemy
 starlette
 uuid
 passlib
+bcrypt
+python-multipart
+cryptography
 
 # For token
 PyJWT

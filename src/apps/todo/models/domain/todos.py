@@ -21,14 +21,6 @@ class TodoItem(BaseModel):
         from_attributes = True
 
 
-class TodoItemOwner(TodoItem):
-    """ TodoItem with owner schema """
-    owner_user_id: str
-
-    class Config:
-        from_attributes = True
-
-
 class TodoItemDB(Base):
     """ TodoItem database schema """
     __tablename__ = TABLE_NAME
@@ -64,12 +56,3 @@ class TodoItemDB(Base):
     )
     created_at = Column(String, index=True)  # format: %Y-%m-%d %H:%M:%S
     updated_at = Column(String, index=True)  # format: %Y-%m-%d %H:%M:%S
-
-
-class TodoItemOwnerDB(TodoItemDB):
-    """ TodoItem with owner database schema """
-    __tablename__ = TABLE_NAME
-
-    # owner_user_id = Column(String, ForeignKey("users.id"))
-
-    # owner_user_id = Column(String, ForeignKey("users.id"))

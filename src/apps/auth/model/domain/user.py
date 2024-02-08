@@ -10,14 +10,15 @@ from .....core.database import Base
 class User(BaseModel):
     """ User Info """
 
+    id: str
     username: str
     email: str
     full_name: str
+    hashed_password: str
     disabled: bool = False
+    permission: UserPermission = UserPermission.NORMAL
     created_at: str
     updated_at: str
-    hashed_password: str
-    permission: UserPermission = UserPermission.NORMAL
 
     class Config:
         from_attribute = True

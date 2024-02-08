@@ -4,25 +4,50 @@ User Schema
 """
 from typing import Dict
 
-from pydantic import field_validator
+from pydantic import field_validator, ValidationInfo, BaseModel
+from fastapi.exceptions import HTTPException
 
-from ..domain.user import User
-
-__all__ = ["UserCreateRequest"]
+__all__ = ["UserCreateRequest", "UserCreatedResponse"]
 
 
-class UserCreateRequest(User):
+class UserCreateRequest(BaseModel):
     """ Register a new account """
-
+    username: str
+    email: str
+    full_name: str
     plain_password: str
     repeat_plain_password: str
 
     # @validator("repeat_plain_password")
     @field_validator("repeat_plain_password")
     def password_match(  # type: ignore
-            cls, v: str, values: Dict[str, str], **kwargs  # noqa
+            cls,
+            v: str,
+            values: ValidationInfo,
+            **kwargs  # noqa
     ) -> str:
         """ password match """
-        if "plain_password" in values and v != values["plain_password"]:
-            raise ValueError("password do not match")
+        v = v.strip()
+
+        if not values.data.get("plain_password"):
+            raise HTTPException(
+                status_code=400,
+                detail="password is required",
+            )
+
+        values.data["plain_password"] = values.data.get("plain_password").strip()
+
+        if v != values.data.get("plain_password"):
+            raise HTTPException(
+                status_code=400,
+                detail="passwords do not match",
+            )
         return v
+
+
+class UserCreatedResponse(BaseModel):
+    """ User Created Response """
+    username: str
+    email: str
+    full_name: str
+    created_at: str
