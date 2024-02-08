@@ -14,6 +14,7 @@ class TokenType(str, Enum):
 
 SupportScopes = {
     "TODOS/POST": "Create a TodoItem",
+    "TODOS/GET/": "Get all TodoItem",
     "TODOS/GET/{todo_id}": "Get a TodoItem",
     "TODOS/PUT/{todo_id}": "Update a TodoItem",
     "TODOS/DELETE/{todo_id}": "Delete a TodoItem",

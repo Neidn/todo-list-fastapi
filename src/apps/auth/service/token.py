@@ -33,14 +33,15 @@ async def create_access_token(
 
 async def decode_token(token: str) -> Optional[TokenData]:
     # Decode Token
-    token_data = Optional[TokenData] = None
+    token_data = None
 
     try:
-        payload = await jwt.decode(
+        payload = jwt.decode(
             jwt=token,
             key=settings.PUBLIC_KEY,
             algorithms=[settings.JWT_ALGORITHM],
         )
+
         token_data = TokenData(
             user_id=payload.get("user_id"),
             token_type=payload.get("token_type"),
@@ -51,7 +52,8 @@ async def decode_token(token: str) -> Optional[TokenData]:
 
     except jwt.PyJWTError as err:
         raise err
-    except Exception:
+    except Exception as err:
+        print(err)
         raise Exception("Could not validate credentials")
     finally:
         return token_data

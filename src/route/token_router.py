@@ -13,6 +13,7 @@ from ..apps.auth.service.auth import authenticate_user
 from ..apps.auth.service.token import create_access_token
 from ..apps.auth.constants import TokenType
 from ..core.database import get_database_session
+from ..apps.auth.constants import SupportScopes
 
 token_router = APIRouter()
 
@@ -33,6 +34,7 @@ async def sign_in(
             email=form_data.username,
             password=form_data.password,
         )
+
         token = await create_access_token(
             user_id=user.id,
             scopes=form_data.scopes,

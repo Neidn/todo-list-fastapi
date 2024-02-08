@@ -18,6 +18,7 @@ class UserCredentialException(HTTPException):
 
 def token_credential_exception(scope: str) -> Exception:
     msg = f"Bearer token required for {scope}" if scope else "Bearer token required"
+
     return UserCredentialException(
         headers={"www-authenticate": msg}
     )

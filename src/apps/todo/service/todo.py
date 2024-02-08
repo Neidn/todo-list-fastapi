@@ -18,8 +18,11 @@ def get_todo(
     return TodoItem.from_orm(todo)
 
 
-def get_all(db: Session) -> List[TodoItem]:
-    todos = db.query(TodoItemDB).all()
+def get_all(
+        db: Session,
+        user_id: str
+) -> List[TodoItem]:
+    todos = db.query(TodoItemDB).filter_by(user_id=user_id).all()
 
     new_todos = [TodoItem.from_orm(todo) for todo in todos]
     return new_todos
@@ -27,13 +30,14 @@ def get_all(db: Session) -> List[TodoItem]:
 
 def create_todo(
         db: Session,
+        user_id: str,
         todo: TodoCreateRequest,
 ) -> TodoItem:
     new_todo_id = get_new_todo_id()
     # Should map to the database schema
     new_todo = TodoItem(
         id=new_todo_id,
-        owner_user_id='',
+        user_id=user_id,
         title=todo.title,
         content=todo.content,
         is_done=todo.is_done,

@@ -11,6 +11,7 @@ TABLE_NAME = "todos"
 class TodoItem(BaseModel):
     """ TodoItem schema """
     id: str
+    user_id: str
     title: str
     content: str
     is_done: bool
@@ -32,6 +33,14 @@ class TodoItemDB(Base):
         default="",
         server_default="",
         comment="TodoItem uuid",
+    )
+    user_id = Column(
+        String,
+        ForeignKey("users.id"),
+        index=True,
+        default="",
+        server_default="",
+        comment="User uuid",
     )
     title = Column(
         String,

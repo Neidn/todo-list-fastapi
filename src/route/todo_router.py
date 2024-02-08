@@ -12,7 +12,7 @@ from ..apps.todo.models.schema.todos import TodoCreateRequest, TodoUpdateRequest
 
 from ..core.database import get_database_session
 
-from ..apps.auth.service.user import get_current_active_user
+from ..apps.auth.service.user import get_current_active_user, get_current_user
 from ..apps.auth.model.domain.user import User
 
 todos_router = APIRouter()
@@ -32,14 +32,22 @@ __updatable_user = Security(get_current_active_user, scopes=["TODOS/PATCH"])
 __deletable_user = Security(get_current_active_user, scopes=["TODOS/DELETE"])
 
 
-@todos_router.get("/", response_model=List[TodoItem], status_code=status.HTTP_200_OK)
+@todos_router.get(
+    "/",
+    response_model=List[TodoItem],
+    status_code=status.HTTP_200_OK
+)
 async def get_todos(
         db: Session = Depends(get_database_session),
+        current_user: User = __readable_user,
 ) -> List[TodoItem]:
     """
     Get all TodoItems
     """
-    todos = services.get_all(db=db)
+    todos = services.get_all(
+        db=db,
+        user_id=current_user.id,
+    )
     return todos
 
 
@@ -72,6 +80,7 @@ async def create_todo(
     """
     new_todo = services.create_todo(
         db=db,
+        user_id=current_user.id,
         todo=todo,
     )
 

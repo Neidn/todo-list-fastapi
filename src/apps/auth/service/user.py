@@ -4,8 +4,8 @@ from uuid import uuid4
 from datetime import datetime
 
 # import jwt
-from fastapi.param_functions import Depends, Security
-from fastapi.security.oauth2 import OAuth2PasswordBearer, SecurityScopes
+from fastapi.param_functions import Depends, Security, Annotated
+from fastapi.security.oauth2 import SecurityScopes
 
 from sqlalchemy.orm import Session
 
@@ -59,27 +59,39 @@ async def create_user(
 
 async def get_current_user(
         security_scopes: SecurityScopes,
-        token: str = Depends(Oauth2Scheme),
+        token: Annotated[str, Depends(Oauth2Scheme)],
         db: Session = Depends(get_database_session),
 ) -> User:
+    print('security_scopes', security_scopes.scopes)
+
+    if security_scopes.scopes is None:
+        raise ValueError("Security Scopes is required")
+
     # Check Current User
     credentials_exception = token_credential_exception(security_scopes.scope_str)
 
     token = await decode_token(token)
 
+    print('token scopes', token.scopes)
+
     if token is None:
         raise credentials_exception
 
-    user = db.query(User).filter_by(id=token.user_id).first()
+    user = db.query(UserDB).filter_by(id=token.user_id).first()
 
     if user is None:
         raise credentials_exception
 
-    user = User.from_orm(user)
-
-    if not check_admin_user(user):
-        credentials_exception.detail = "Is not an admin user"
-        raise credentials_exception
+    user = User(
+        id=user.id,
+        username=user.username,
+        email=user.email,
+        full_name=user.full_name,
+        hashed_password=user.hashed_password,
+        disabled=user.disabled,
+        created_at=user.created_at,
+        updated_at=user.updated_at,
+    )
 
     if not is_enough_permissions(token.scopes, security_scopes.scopes):
         credentials_exception.detail = "Insufficient permissions"
