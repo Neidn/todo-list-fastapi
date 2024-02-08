@@ -11,11 +11,23 @@ from src.apps.todo.models.schema.todos import TodoCreateRequest, TodoUpdateReque
 
 def get_todo(
         db: Session,
+        user_id: str,
         todo_id: str
-) -> TodoItem:
-    todo = db.query(TodoItemDB).filter_by(id=todo_id).first()
+) -> Optional[TodoItem]:
+    todo = db.query(TodoItemDB).filter_by(user_id=user_id, id=todo_id).first()
 
-    return TodoItem.from_orm(todo)
+    if todo is None:
+        return None
+
+    return TodoItem(
+        id=todo.id,
+        user_id=todo.user_id,
+        title=todo.title,
+        content=todo.content,
+        is_done=todo.is_done,
+        created_at=todo.created_at,
+        updated_at=todo.updated_at,
+    )
 
 
 def get_all(
@@ -61,18 +73,26 @@ def get_new_todo_id() -> str:
 
 def update_todo(
         db: Session,
+        user_id: str,
         todo_id: str,
         todo_update_request: TodoUpdateRequest,
 ) -> int:
+
+    update_request = todo_update_request.dict(exclude_unset=True)
+    update_request['updated_at'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     """ TodoItem Update  """
-    result = db.query(TodoItemDB).filter_by(id=todo_id).update(todo_update_request.dict())
+    result = db.query(TodoItemDB).filter_by(id=todo_id, user_id=user_id).update(update_request)
 
     db.commit()
 
     return True if result > 0 else False
 
 
-def delete_todo(db: Session, todo_id: str) -> None:
+def delete_todo(
+        db: Session,
+        user_id: str,
+        todo_id: str,
+) -> None:
     """ TodoItem Delete  """
-    db.query(TodoItemDB).filter_by(id=todo_id).delete()
+    db.query(TodoItemDB).filter_by(id=todo_id, user_id=user_id).delete()
     db.commit()

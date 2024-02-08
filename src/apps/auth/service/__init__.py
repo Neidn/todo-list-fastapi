@@ -7,11 +7,11 @@ from ..model.domain.user import User
 from ..constants import UserPermission
 from ....core.config import settings
 
-with open(settings.PUBLIC_KEY_PATH, "r") as f:
-    settings.PUBLIC_KEY = f.read()
+# with open(settings.PUBLIC_KEY_PATH, "r") as f:
+#    settings.PUBLIC_KEY = f.read()
 
-with open(settings.PRIVATE_KEY_PATH, "r") as f:
-    settings.PRIVATE_KEY = f.read()
+# with open(settings.PRIVATE_KEY_PATH, "r") as f:
+#    settings.PRIVATE_KEY = f.read()
 
 __pwd_context = CryptContext(
     schemes=["bcrypt"],

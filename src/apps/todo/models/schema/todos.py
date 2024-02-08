@@ -14,3 +14,20 @@ class TodoUpdateRequest(BaseModel):
     title: Optional[str]
     content: Optional[str]
     is_done: Optional[bool]
+
+
+class TodoCreateSuccessResponse(BaseModel):
+    """ TodoItem Create response schema """
+    title: str
+    content: Optional[str]
+    created_at: str
+
+
+class TodoGetResponse(BaseModel):
+    """ TodoItem Get response schema """
+    id: str
+    title: str
+    content: Optional[str]
+    is_done: bool
+    created_at: str
+    updated_at: str

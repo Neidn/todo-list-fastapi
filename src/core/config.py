@@ -33,10 +33,8 @@ class Settings(BaseSettings):
     """
 
     API_VERSION_PREFIX: str = "/api/v1"
-    PRIVATE_KEY_PATH: str = "private_key.pem"
-    PUBLIC_KEY_PATH: str = "public_key.pem"
-    PRIVATE_KEY: str = ''
-    PUBLIC_KEY: str = ''
+    PRIVATE_KEY: str = "private_key.pem"
+    PUBLIC_KEY: str = "public_key.pem"
     JWT_ALGORITHM: str = "RS256"
 
     ACCESS_TOKEN_EXPIRE_SECONDS: int = 3600
@@ -55,8 +53,6 @@ class Settings(BaseSettings):
             raise ValueError(v)
         return result
 
-    '''
-    # @validator("PRIVATE_KEY", pre=True)
     @field_validator("PRIVATE_KEY")
     def __set_private_key(cls, path: str) -> str:  # noqa
         private_key = open(path).read()
@@ -67,7 +63,6 @@ class Settings(BaseSettings):
     def __set_public_key(cls, path: str) -> str:  # noqa
         public_key = open(path).read()
         return public_key
-    '''
 
     class Config:
         """ additional setting for Settings """
