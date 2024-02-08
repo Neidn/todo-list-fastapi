@@ -15,7 +15,7 @@ from ..core.database import get_database_session
 from ..apps.auth.service.user import get_current_active_user, get_current_user
 from ..apps.auth.model.domain.user import User
 
-from .. import uuid_regex
+from .. import check_uuid
 
 todos_router = APIRouter()
 
@@ -74,6 +74,9 @@ async def get_todo(
     """
     Get a TodoItem
     """
+    if not check_uuid(todo_id):
+        raise TodoNotFoundException
+
     todo = services.get_todo(
         db=db,
         user_id=current_user.id,
@@ -135,6 +138,9 @@ async def update_todo(
     """
     Update a TodoItem
     """
+    if not check_uuid(todo_id):
+        raise TodoNotFoundException
+
     todo = services.get_todo(
         db=db,
         user_id=current_user.id,
@@ -182,13 +188,13 @@ async def delete_todo(
     """
     Delete a TodoItem
     """
-    # validate todo_id
-    print(__valid_id(todo_id))
-
+    if not check_uuid(todo_id):
+        raise TodoNotFoundException
 
     todo = services.get_todo(
         db=db,
         todo_id=todo_id,
+        user_id=current_user.id,
     )
 
     if todo is None:
@@ -197,5 +203,6 @@ async def delete_todo(
     services.delete_todo(
         db=db,
         todo_id=todo_id,
+        user_id=current_user.id,
     )
     return None
