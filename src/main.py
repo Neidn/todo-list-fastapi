@@ -27,13 +27,17 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
+
+
+    """
     app.add_exception_handler(
         RequestValidationError,
         handler=validation_exception_handler,
     )
     app.add_exception_handler(
         HTTPException,
-        handler=http_exception_handler
+        handler=http_exception_handler,
     )
+    """
 
     return app

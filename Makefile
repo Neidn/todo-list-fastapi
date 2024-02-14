@@ -1,12 +1,13 @@
-DIR = $(shell pwd)
 VENV_DIR = .venv
+VENV_BIN = $(VENV_DIR)/bin
+VENV_PYTHON   = $(VENV_BIN)/python
+NOSETESTS     = $(VENV_BIN)/nosetests
 
 run:
-	@echo "Running the application"
-	@python -m uvicorn src.asgi:app --port 5000 --reload
+	source $(VENV_DIR)/bin/activate && $(VENV_PYTHON) -m uvicorn src.asgi:app --port 5000 --reload
 
 test:
 	@echo "Running the tests"
-	@nosetests
+	$(NOSETESTS)
 
-.PHONY: run
+.PHONY: run test
