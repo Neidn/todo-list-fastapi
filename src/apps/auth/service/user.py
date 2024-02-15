@@ -72,9 +72,13 @@ async def get_current_user(
 
     token = await decode_token(token)
 
+    print('token', token)
     print('token scopes', token.scopes)
 
     if token is None:
+        raise credentials_exception
+
+    if token.expire_at < time.time():
         raise credentials_exception
 
     user = db.query(UserDB).filter_by(id=token.user_id).first()

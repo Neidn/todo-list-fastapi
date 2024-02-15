@@ -62,6 +62,62 @@ async def get_todos(
 
 
 @todos_router.get(
+    "/done",
+    response_model=List[TodoGetResponse],
+    status_code=status.HTTP_200_OK
+)
+async def get_done_todos(
+        db: Session = Depends(get_database_session),
+        current_user: User = __readable_user,
+) -> List[TodoGetResponse]:
+    """
+    Get all done TodoItems
+    """
+    todos = services.get_done_all(
+        db=db,
+        user_id=current_user.id,
+    )
+    response = [TodoGetResponse(
+        id=todo.id,
+        title=todo.title,
+        content=todo.content,
+        is_done=todo.is_done,
+        created_at=todo.created_at,
+        updated_at=todo.updated_at,
+    ) for todo in todos]
+
+    return response
+
+
+@todos_router.get(
+    "/undone",
+    response_model=List[TodoGetResponse],
+    status_code=status.HTTP_200_OK
+)
+async def get_undone_todos(
+        db: Session = Depends(get_database_session),
+        current_user: User = __readable_user,
+) -> List[TodoGetResponse]:
+    """
+    Get all not done TodoItems
+    """
+    todos = services.get_undone_all(
+        db=db,
+        user_id=current_user.id,
+    )
+    response = [TodoGetResponse(
+        id=todo.id,
+        title=todo.title,
+        content=todo.content,
+        is_done=todo.is_done,
+        created_at=todo.created_at,
+        updated_at=todo.updated_at,
+    ) for todo in todos]
+
+    return response
+
+
+@todos_router.get(
     "/{todo_id}",
     response_model=TodoGetResponse,
     status_code=status.HTTP_200_OK
@@ -98,14 +154,14 @@ async def get_todo(
 
 @todos_router.post(
     "/",
-    response_model=TodoCreateSuccessResponse,
+    response_model=TodoGetResponse,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_todo(
         todo: TodoCreateRequest,
         current_user: User = __creatable_user,
         db: Session = Depends(get_database_session),
-) -> TodoCreateSuccessResponse:
+) -> TodoGetResponse:
     """
     Create a TodoItem
     """
@@ -115,10 +171,13 @@ async def create_todo(
         todo=todo,
     )
 
-    response = TodoCreateSuccessResponse(
+    response = TodoGetResponse(
+        id=new_todo.id,
         title=new_todo.title,
         content=new_todo.content,
+        is_done=new_todo.is_done,
         created_at=new_todo.created_at,
+        updated_at=new_todo.updated_at,
     )
 
     return response

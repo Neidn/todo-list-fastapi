@@ -30,6 +30,26 @@ def get_todo(
     )
 
 
+def get_done_all(
+        db: Session,
+        user_id: str
+) -> List[TodoItem]:
+    todos = db.query(TodoItemDB).filter_by(user_id=user_id).filter_by(is_done=True).all()
+
+    new_todos = [TodoItem.from_orm(todo) for todo in todos]
+    return new_todos
+
+
+def get_undone_all(
+        db: Session,
+        user_id: str
+) -> List[TodoItem]:
+    todos = db.query(TodoItemDB).filter_by(user_id=user_id).filter_by(is_done=False).all()
+
+    new_todos = [TodoItem.from_orm(todo) for todo in todos]
+    return new_todos
+
+
 def get_all(
         db: Session,
         user_id: str
@@ -77,7 +97,6 @@ def update_todo(
         todo_id: str,
         todo_update_request: TodoUpdateRequest,
 ) -> int:
-
     update_request = todo_update_request.dict(exclude_unset=True)
     update_request['updated_at'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     """ TodoItem Update  """
