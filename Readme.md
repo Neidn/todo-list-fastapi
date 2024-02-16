@@ -5,6 +5,10 @@
 This is a simple todo list API using FastAPI and SQLite.
 DB is easy to change to any other SQL DB.
 
+## Frontend Repository
+
+Simple React frontend for this API can be found [here](https://github.com/Neidn/todo-list-simple-react.git)
+
 ## Installation
 
 1. Clone the repository
